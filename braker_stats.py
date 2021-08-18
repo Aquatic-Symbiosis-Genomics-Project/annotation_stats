@@ -29,16 +29,13 @@ exon_lens=[]
 
 for h in c:    
     h=h.split()
-    #K="".join(h).split("gene_id")[1].replace(";", "")
-    #print(h[1])  scaffold_id, gene_id  (use class here? what about start codon)
     if "intron" in h:
         intronL=int(h[4]) - int(h[3])
         intron_lens.append(intronL)
-        #intron_lens.append(h[0] + " " + K + " " + str(int(h[4]) - int(h[3])))
+        
         
     if "exon" in h:
         exonL=int(h[4]) - int(h[3])
-        #exon_lens.append(h[0] + " " + K + " " + str(int(h[4]) - int(h[3])))
         exon_lens.append(exonL)
         
 
