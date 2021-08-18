@@ -5,12 +5,11 @@ Created on Sun Jul 18 18:03:40 2021
 @author: ce9
 """
 
-
 import sys
-
-gtf_file=sys.argv[1]
 gff_file=sys.argv[2]  
+gtf_file=sys.argv[1]
 ID=sys.argv[3]
+
 
 # read in gtf file(augustus.final.hints.gtf)
 with open(gtf_file, "r") as gtf_in:
@@ -24,18 +23,22 @@ e=s.count("gene")
 print("N genes:" + str(e))
 
 
-# Get all ntron and exon lens for all transcripts
+# Get all intron and exon lens for all transcripts
 intron_lens=[]
 exon_lens=[]
 
 for h in c:    
     h=h.split()
-    
+    #K="".join(h).split("gene_id")[1].replace(";", "")
+    #print(h[1])  scaffold_id, gene_id  (use class here? what about start codon)
     if "intron" in h:
         intronL=int(h[4]) - int(h[3])
         intron_lens.append(intronL)
+        #intron_lens.append(h[0] + " " + K + " " + str(int(h[4]) - int(h[3])))
+        
     if "exon" in h:
         exonL=int(h[4]) - int(h[3])
+        #exon_lens.append(h[0] + " " + K + " " + str(int(h[4]) - int(h[3])))
         exon_lens.append(exonL)
         
 
@@ -103,23 +106,54 @@ len_full_trans=len(full_transcripts)
 
 print("N transcripts with start and stop:" + str(len_full_trans))
 
-
 # Get gene lens
 gene_lens=[]
-
 
 # Perc support for each trancript on each scaffold
 perc_support=[]
 
 for i in genes2:
-    i = i.split("\n")
+    i = i.split("\n")    
     k = "".join(i).split("% of transcript supported by hints (any source):")[1].split("#")[0]
     j=(i[1].split())
-    perc_support.append(j[0] + " " + j[8] + " " + k)
+    
     gene_len=int(j[4]) - int(j[3])
-    gene_lens.append(gene_len)    
+    gene_lens.append(gene_len)  
     
+    # perc introns supported.....per transcript....
+    #function this up later...
     
+    int_con="".join(i).split("CDS introns:")[1].split("#")[0]
+    in_split=int_con.split("/")
+    
+    in_1=(int(in_split[0]))
+    
+    if in_1 == 0:
+        conf_in=0
+    else:
+        in_2=int(in_split[1])
+        conf_in=((in_1/in_2) * 100)
+        
+        
+    ex_con="".join(i).split("CDS exons:")[1].split("#")[0]
+    ex_split=ex_con.split("/")
+    
+    #print(ex_con)
+
+    ex_1=(int(ex_split[0]))
+    #print(ex_1)
+    
+    if ex_1 == 0:
+        conf_ex=0
+    else:
+        ex_2=int(ex_split[1])
+        conf_ex=((ex_1/ex_2) * 100)
+        
+    # if zero support,remove table ? Add this later....
+    
+    perc_support.append(j[0] + " " + j[8] + " " + k + " " + str(conf_in) + " " + str(conf_ex))
+     
+
 #write out stat files     
 with open(str(ID) + '_gene_lens.txt', 'w') as f2:
     for item3 in gene_lens:
@@ -134,14 +168,3 @@ with open(str(ID) + '_perc_support.txt', 'w') as f3:
 Av_gene_len=int(sum(gene_lens) / len(gene_lens))
 
 print("average gene len:" + str(Av_gene_len))
-
-
-
-# For testing:
-#ID="test"
-#gtf_file="/Users/ce9/Desktop/Annotation_stats/Ladybird1/augustus.hints.gtf"
-#with open("/Users/ce9/Desktop/Annotation_stats/Ladybird2/augustus.hints.gtf", "r") as gtf_in:
-#with open("/Users/ce9/Desktop/Annotation_stats/Ladybird2/augustus.hints.gff", "r") as gff_in:
-#with open("/Users/ce9/Desktop/Annotation_stats/Ladybird1/augustus.hints.final.gff", "r") as gff_in:
-#gff_file="/Users/ce9/Desktop/Annotation_stats/Ladybird1/augustus.hints.gff"
-  
