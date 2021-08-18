@@ -37,10 +37,10 @@ perc<-data.frame(read.table(perc_support, header = FALSE))
 attach(perc)
 
 #Plot all support.
-all_support<-ggplot() + geom_histogram(aes(perc$V3), fill = "blue", bins = 100) + geom_density(alpha = 0.4) + theme_classic() + labs(title="Distribution of transcript support (all sources) ", x ="% support", y = "Count")
+all_support<-ggplot() + geom_histogram(aes(perc$V3), fill = "blue", bins = 100) + geom_density(alpha = 0.4) + theme_classic() + labs(x ="% support", y = "Count")#title="Distribution of transcript support (all sources) ",
 
 #Plot intron support.
-intron_support<-ggplot() + geom_histogram(aes(perc$V4), fill = "blue", bins = 100) + geom_density(alpha = 0.4) + theme_classic() + labs(title="Distribution of transcript support - Introns ", x ="% support", y = "Count")
+intron_support<-ggplot() + geom_histogram(aes(perc$V4), fill = "blue", bins = 100) + geom_density(alpha = 0.4) + theme_classic() + labs(x ="% support", y = "Count")#title="Distribution of transcript support - Introns ",
 
 res <- marrangeGrob(list(Gene_len, Exon_len, Log_geneLen, Log_exonLen, Intron_len, all_support, Log_intLen, intron_support), nrow = 2, ncol = 2)
 
