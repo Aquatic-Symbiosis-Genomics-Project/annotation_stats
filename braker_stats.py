@@ -6,162 +6,147 @@ Created on Sun Jul 18 18:03:40 2021
 """
 
 import sys
-gff_file=sys.argv[2]  
-gtf_file=sys.argv[1]
+gff_file=sys.argv[1]  
+gtf_file=sys.argv[2]
 ID=sys.argv[3]
 
 
-# read in gtf file(augustus.final.hints.gtf)
 with open(gtf_file, "r") as gtf_in:
     c=gtf_in.readlines()
+""" read in gtf file(augustus.final.hints.gtf """
     
 
-#Get n genes
+def write_out(string_name, iD, to_write):
+    """ write out function for txt files """ 
+    with open(str(iD) + str(string_name), 'w') as f:
+                  for item in to_write:
+                      f.write("%s\n" % item)
+            
+
 s="".join(c).replace("gene_id", "Gid")
-e=s.count("gene")    
-
-print("N genes:" + str(e))
-
-
-# Get all intron and exon lens for all transcripts
-intron_lens=[]
-exon_lens=[]
-
-for h in c:    
-    h=h.split()
-    if "intron" in h:
-        intronL=int(h[4]) - int(h[3])
-        intron_lens.append(intronL)
-        
-        
-    if "exon" in h:
-        exonL=int(h[4]) - int(h[3])
-        exon_lens.append(exonL)
-        
-
-# write out intron and exon lens 
-with open(str(ID) + '_intron_lens.txt', 'w') as f:
-    for item1 in intron_lens:
-        f.write("%s\n" % item1)        
-        
-with open(str(ID) + '_exon_lens.txt', 'w') as f1:
-    for item2 in exon_lens:
-        f1.write("%s\n" % item2)        
+print("N genes:" + str(s.count("gene")))
+""" get and print out number of genes """
 
 
-#Print out some stats...
+def get_lens(strng,thing):
+    """ function to get intron and exon lens """
+    out_list=[]
+    for h in thing:
+        h=h.split()
+        if str(strng) in h:
+            out=int(h[4]) - int(h[3])
+            out_list.append(out)
+    return(out_list)
+    
+    
+intron_lens=get_lens("intron", c)
+exon_lens=get_lens("exon", c)
+""" get all intron and exon lens for every transcript """
+    
+
+write_out("_intron_lens.txt", ID, intron_lens)
+write_out("_exon_lens.txt", ID, exon_lens)
+""" write out intron and exon lens """
+
+
+print("average exon length:" + str(int(sum(exon_lens) / len(exon_lens))))
+print("average intron length:" + str(int(sum(intron_lens) / len(intron_lens))))
 print("Min exon len:" + str(min(exon_lens)))
 print("Max exon len:" + str(max(exon_lens)))
 print("Min intron len:" + str(min(intron_lens)))        
 print("Max intron len:" + str(max(intron_lens)))     
 print("N total introns:" + str(len(intron_lens)))        
-print("N total exons:" + str(len(exon_lens)))        
-        
-Av_exon_len=int(sum(exon_lens) / len(exon_lens))
-print("average exon length:" + str(Av_exon_len))
+print("N total exons:" + str(len(exon_lens))) 
+""" print a load of stats, weee """       
+   
 
-Av_intron_len=int(sum(intron_lens) / len(intron_lens))
-print("average intron length:" + str(Av_intron_len))
-        
-
-#Read in gff file
 with open(gff_file, "r") as gff_in:
     d=gff_in.readlines()
+""" read in gff file (augustus.hints.gff) """
     
-    
-# Split by gene entry     
-genes2="".join(d).split("# start gene")[1:]
+   
+gene_split="".join(d).split("# start gene")[1:]
+""" split by gene entry """
 
-# Find n start codons
-start_codons=str(genes2).count("start_codon")
 
+start_codons=str(gene_split).count("start_codon")
 print("N start codons:" + str(start_codons))
-
-# Find n stop codons
-stop_codons=str(genes2).count("stop_codon")
-
+stop_codons=str(gene_split).count("stop_codon")
 print("N stop codons:" + str(stop_codons))
+""" find number of start and stop codons """
 
 
-#Gen n single exon genes
-singles=str(genes2).count("single")
-
+singles=str(gene_split).count("single")
 print("N single exon transcripts:" + str(singles))
+""" get number of single exon genes, based on 
+where 'single' string appears
+"""
 
-
-#Identify full length transcripts 
 full_transcripts=[]
+""" identify full length transcripts based on 
+presence of both start and stop codons in entry"""
 
-for n in genes2:
+for n in gene_split:
     n=n.split()
     if "start_codon" and "stop_codon" in n:
         full_transcripts.append(n[0])
 
-    
-# Find n full length transcripts       
+ 
 len_full_trans=len(full_transcripts)
-
 print("N transcripts with start and stop:" + str(len_full_trans))
 
-# Get gene lens
+""" get and print number of full length transcripts """
+
+
+def find_conf(x_split):
+    """ get perc confidence based on any source used in augustus 
+    for introns and exons - info from gff intermediate file
+    """
+    x_split2=x_split[0]
+    
+    if int(x_split2) == 0:
+        """ if there is no evidence used e.g 0, confidence = 0 """
+        conf=0
+    
+    else:
+        """ divide the fraction for a perc or leave as 0 ... e.g
+        0/2 is left at 0, 2/4 is 50% entries look like:
+        # # e.g CDS introns: 7/7    """
+        conf=str((int(x_split2)/int(x_split[1])) * 100)
+    return(conf)   
+    
+
 gene_lens=[]
+""" list of gene lens """
 
-# Perc support for each trancript on each scaffold
+
 perc_support=[]
+""" Perc support for each trancript on each scaffold """
 
-for i in genes2:
+for i in gene_split:
     i = i.split("\n")    
     k = "".join(i).split("% of transcript supported by hints (any source):")[1].split("#")[0]
     j=(i[1].split())
     
-    gene_len=int(j[4]) - int(j[3])
-    gene_lens.append(gene_len)  
-    
-    # perc introns supported.....per transcript....
-    #function this up later...
-    
+    """ perc introns supported per transcript by rna-seq """
     int_con="".join(i).split("CDS introns:")[1].split("#")[0]
     in_split=int_con.split("/")
-    
-    in_1=(int(in_split[0]))
-    
-    if in_1 == 0:
-        conf_in=0
-    else:
-        in_2=int(in_split[1])
-        conf_in=((in_1/in_2) * 100)
         
-        
+    """ perc introns supported per transcript by rna-seq """
     ex_con="".join(i).split("CDS exons:")[1].split("#")[0]
     ex_split=ex_con.split("/")
-    
-    #print(ex_con)
-
-    ex_1=(int(ex_split[0]))
-    #print(ex_1)
-    
-    if ex_1 == 0:
-        conf_ex=0
-    else:
-        ex_2=int(ex_split[1])
-        conf_ex=((ex_1/ex_2) * 100)
-        
-    # if zero support,remove table ? Add this later....
-    
-    perc_support.append(j[0] + " " + j[8] + " " + k + " " + str(conf_in) + " " + str(conf_ex))
      
+    """ append all info into final list for perc support """
+    perc_support.append(j[0] + " " + j[8] + " " + k + " " + str(find_conf(in_split)) + " " + str(find_conf(ex_split)) + " " + str(int_con) +  " " + str(ex_con) )
+   
+    """ get gene lens and add to list for each model """
+    gene_len=int(j[4]) - int(j[3])
+    gene_lens.append(gene_len)   
+    
+            
+write_out("_gene_lens.txt", ID, gene_lens)
+write_out("_perc_support.txt", ID, perc_support)  
+""" write out txt files """       
 
-#write out stat files     
-with open(str(ID) + '_gene_lens.txt', 'w') as f2:
-    for item3 in gene_lens:
-        f2.write("%s\n" % item3)     
-        
-        
-with open(str(ID) + '_perc_support.txt', 'w') as f3:
-    for item4 in perc_support:
-        f3.write("%s\n" % item4)            
-
-#Get average gene length
-Av_gene_len=int(sum(gene_lens) / len(gene_lens))
-
-print("average gene len:" + str(Av_gene_len))
+print("average gene len:" + str(int(sum(gene_lens) / len(gene_lens))))
+""" print out av gene len """
