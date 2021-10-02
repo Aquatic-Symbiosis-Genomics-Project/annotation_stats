@@ -42,7 +42,36 @@ all_support<-ggplot() + geom_histogram(aes(perc$V3), fill = "blue", bins = 100) 
 #Plot intron support.
 intron_support<-ggplot() + geom_histogram(aes(perc$V4), fill = "blue", bins = 100) + geom_density(alpha = 0.4) + theme_classic() + labs(x ="% support", y = "Count")#title="Distribution of transcript support - Introns ",
 
+# arrange plots
 res <- marrangeGrob(list(Gene_len, Exon_len, Log_geneLen, Log_exonLen, Intron_len, all_support, Log_intLen, intron_support), nrow = 2, ncol = 2)
 
-# Export to a pdf file
-ggexport(res, filename = "braker_stats.pdf")
+# Export summary stat plots pdf file
+ggexport(res, filename = "Summary_stats.pdf")
+
+# subset only localised scaffolds based on SUPER_id 
+chroms_subset<-perc[grep("SUPER_", perc$V1),]
+
+# removed unlocalised (with SUPER_id)
+chroms2<-data.frame(chroms_subset[!grepl("unloc",chroms_subset$V1), ])
+
+#Get unique list of chromosome ids
+chroms3<-unique(chroms2[1])
+
+# PLot perc support
+chroms_support_all<-ggplot(chroms2, aes(chroms2$V3)) + geom_histogram(fill = "blue", bins = 30) + geom_density(alpha = 0.4) + theme_classic() + labs(title="Transcript support (all sources) ", x ="% support", y = "Count") + facet_wrap(~ chroms2$V1)
+
+# Plot intron support 
+chroms_support_intron<-ggplot(chroms2, aes(chroms2$V4)) + geom_histogram(fill = "blue", bins = 30) + geom_density(alpha = 0.4) + theme_classic() + labs(title="Transcript support (introns) ", x ="% support", y = "Count") + facet_wrap(~ chroms2$V1)
+
+# arrange plots
+res2 <- marrangeGrob(list(chroms_support_all, chroms_support_intron), nrow = 1, ncol = 1)
+
+# Export chromosome stats to pdf file
+ggexport(res2, filename = "Summary_stats_chromosomes.pdf")
+
+
+
+
+
+
+
