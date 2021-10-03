@@ -6,6 +6,8 @@ Created on Sun Jul 18 18:03:40 2021
 """
 
 import sys
+#from statistics import median
+
 gff_file=sys.argv[1]  
 gtf_file=sys.argv[2]
 ID=sys.argv[3]
