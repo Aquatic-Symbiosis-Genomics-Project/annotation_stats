@@ -6,6 +6,8 @@ Created on Sun Jul 18 18:03:40 2021
 """
 
 import sys
+#from statistics import median
+
 gff_file=sys.argv[1]  
 gtf_file=sys.argv[2]
 ID=sys.argv[3]
@@ -44,9 +46,9 @@ exon_lens=get_lens("exon", c)
 """ get all intron and exon lens for every transcript """
     
 
-write_out("_intron_lens.txt", ID, intron_lens)
-write_out("_exon_lens.txt", ID, exon_lens)
-""" write out intron and exon lens """
+#write_out("_intron_lens.txt", ID, intron_lens)
+#write_out("_exon_lens.txt", ID, exon_lens)
+#""" write out intron and exon lens """
 
 
 print("average exon length:" + str(int(sum(exon_lens) / len(exon_lens))))
@@ -144,9 +146,9 @@ for i in gene_split:
     gene_lens.append(gene_len)   
     
             
-write_out("_gene_lens.txt", ID, gene_lens)
+#write_out("_gene_lens.txt", ID, gene_lens)
 write_out("_perc_support.txt", ID, perc_support)  
-""" write out txt files """       
+#""" write out txt files """       
 
 print("average gene len:" + str(int(sum(gene_lens) / len(gene_lens))))
 """ print out av gene len """
