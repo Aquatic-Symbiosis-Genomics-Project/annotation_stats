@@ -10,7 +10,7 @@ Install.packages("ggplot2", "gridExtra", "ggpubr")
         python braker_stats.py gff_file  gtf_file ID
         
 4. Plot stats: 
-        ./braker_plots.R intron_lens exon_lens gene_lens perc_support
+        ./braker_plots.R perc_support
         
         
 Note chromosome id's need to be in format: e.g SUPER_1  and SUPER_1_unloc (to edit later on....)
