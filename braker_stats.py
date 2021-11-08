@@ -147,7 +147,7 @@ for i in gene_split:
     
             
 #write_out("_gene_lens.txt", ID, gene_lens)
-#write_out("_perc_support.txt", ID, perc_support)  
+write_out("_perc_support.txt", ID, perc_support)  
 #""" write out txt files """       
 
 print("average gene len:" + str(int(sum(gene_lens) / len(gene_lens))))
