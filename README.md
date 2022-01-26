@@ -1,4 +1,5 @@
-# annotation_stats
+# Stats for braker temp files 
+
 
 1. Install R libraries (will need to be in personal library on cluster, lib not writable....)
 
