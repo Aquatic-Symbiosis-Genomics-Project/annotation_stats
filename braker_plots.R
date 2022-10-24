@@ -32,10 +32,3 @@ chroms_support_intron<-ggplot(chroms2, aes(chroms2$V4)) + geom_histogram(fill = 
 
 # Export chromosome stats to pdf file
 ggexport(res2, filename = "Summary_stats_chromosomes.pdf")
-
-
-
-
-
-
-
